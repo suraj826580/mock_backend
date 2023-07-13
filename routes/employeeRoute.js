@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { employeeModal } = require("../models/employeeModal");
 const { UserModel } = require("../models/UserModal");
+const e = require("express");
 const employeeRoute = Router();
 
 employeeRoute.post("/add", async (req, res) => {
@@ -31,9 +32,14 @@ module.exports = { employeeRoute };
 
 employeeRoute.delete("/delete/:id", async (req, res) => {
   const { id } = req.params;
+  const employee = await employeeModal.findOne({ _id: id });
   try {
-    await UserModel.findByIdAndDelete({ _id: id });
-    res.send({ msg: "student has been deleted" });
+    if (req.body.userRelation === employee.userRelation) {
+      await employeeModal.findByIdAndDelete({ _id: id });
+    } else {
+      res.send({ msg: "You are not Authorized to do this action" });
+    }
+    res.send({ msg: "employee has been deleted" });
   } catch (error) {
     res.send({ msg: error });
   }
